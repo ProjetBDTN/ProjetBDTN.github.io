@@ -7,6 +7,9 @@ This is Worldwide Comparation Map which can show the difference between some cou
 * YvYh
 * Blipe
 
+test by YvYH
+
+
 
 
 
