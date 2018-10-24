@@ -1,2 +1,14 @@
 # Worldwide_Comparation_Map
-Worldwide Comparation Map
+
+This is Worldwide Comparation Map which can show the difference between some countries
+
+# Author
+* Yansera
+* YvYh
+* Blipe
+
+
+
+
+
+
