@@ -50,11 +50,31 @@ d3.json("world-countries.json", function (data) {
                 d3.select(this).attr('fill', d3.hsl(240, 1, 0.6));
             }
 
+            // knowing the position of the mouse from d3.event
+            var transform = d3.event;
+            var yPosition = transform.offsetY + 20;
+            var xPosition = transform.offsetX + 20;
+
+            // adjust the floating layer near the mouse(position)?
+            var chartTooltip = d3
+                .select(".chartTooltip")
+                .style("left", xPosition + "px")
+                .style("top", yPosition + "px");
+
+            // Setting the concept of the floating layer
+            chartTooltip.select(".name").text('this is a country');
+
+            // Remove the hidden caractarisc
+            chartTooltip.classed("hidden", false);
+
+
         })
         .on('mouseout', function (data) {
             if (this.id != "selected") {
                 d3.select(this).attr('fill', 'rgba(128,124,139,0.61)');
             }
+            // Hidding the float layer
+            d3.select(".chartTooltip").classed("hidden", true);
         })
         .on('click', function (data) {
             if (this.id != "selected") {
