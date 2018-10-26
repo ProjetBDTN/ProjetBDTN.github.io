@@ -46,7 +46,9 @@ d3.json("world-countries.json", function (data) {
 
     d3.selectAll("path:not(#selected)")
         .on('mouseover', function (data) {
-            d3.select(this).attr('fill', d3.hsl(240, 1, 0.6));
+            if (this.id != "selected") {
+                d3.select(this).attr('fill', d3.hsl(240, 1, 0.6));
+            }
 
         })
         .on('mouseout', function (data) {
@@ -59,12 +61,11 @@ d3.json("world-countries.json", function (data) {
                 d3.select(this)
                     .attr('fill', d3.hsl(0, 1, 0.6))
                     .attr("id", "selected");
-            }else
-                {
-                     d3.select(this)
+            } else {
+                d3.select(this)
                     .attr('fill', 'rgba(128,124,139,0.61)')
                     .attr("id", "unselected");
-                }
+            }
         });
 
 
