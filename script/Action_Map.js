@@ -2,7 +2,7 @@ var height = window.innerHeight;
 var width = window.innerWidth;
 var svg = d3.select('#container').append('svg');
 
-d3.json("world-countries.json", function (data) {
+d3.json("../data/world-countries.json", function (data) {
 
     var features = _.filter(data.features, function (value, key) {
         return value.properties.name != 'Antarctica';
