@@ -12,6 +12,7 @@ d3.json("../data/world-countries.json", function (data) {
     var oldScala = projection.scale();
     var oldTranslate = projection.translate();
 
+    //two sizes of the map
     xy = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 0.9)
         .translate([width / 2, height / 2]);
 
@@ -21,25 +22,11 @@ d3.json("../data/world-countries.json", function (data) {
     path = d3.geo.path().projection(xy);
 
     svg.attr('width', width).attr('height', height);
-    svg.selectAll('path').data(features).enter().append('svg:path')
+    svg.selectAll('path')
+        .data(features)
+        .enter()
+        .append('svg:path')
         .attr('d', path)
-        //                .on('click', function (data) {
-        //                    d3.select(this)
-        //                        .attr('fill', d3.hsl(0, 1, 0.6))
-        //                        .attr("class", "selected");
-        //                })
-        //                .on('mouseover', function (data) {
-        //                    d3.select(this).attr('fill', d3.hsl(240, 1, 0.6));
-        //
-        //                })
-        //                .on('mouseout', function (data) {
-        //                    d3.select(this).attr('fill', 'rgba(128,124,139,0.61)');
-        //                })
-        //                .on('click', function (data) {
-        //                    d3.select(this)
-        //                        .attr('fill', d3.hsl(0, 1, 0.6))
-        //                        .attr("class", "selected");
-        //                })
         .attr('fill', 'rgba(128,124,139,0.61)')
         .attr('stroke', 'rgba(255,255,255,1)')
         .attr('stroke-width', 1);
@@ -62,7 +49,7 @@ d3.json("../data/world-countries.json", function (data) {
                 .style("top", yPosition + "px");
 
             // Setting the concept of the floating layer
-            chartTooltip.select(".name").text('this is a country');
+            chartTooltip.select(".name").text(data.properties.name + '  -----  ' + data.id);
 
             // Remove the hidden caractarisc
             chartTooltip.classed("hidden", false);
