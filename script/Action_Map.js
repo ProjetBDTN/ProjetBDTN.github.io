@@ -1,6 +1,6 @@
-var height = window.innerHeight;
-var width = window.innerWidth;
-var svg = d3.select('#container').append('svg');
+var height = 600;
+var width = 600;
+var svg = d3.select('#map').append('svg');
 var selected = [];
 
 // removeId function
@@ -27,7 +27,7 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
     xy = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 0.9)
         .translate([width / 2, height / 2]);
 
-    xy1 = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 0.6)
+    xy1 = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 1)
         .translate([width / 2, height / 2]);
 
     path = d3.geo.path().projection(xy);
@@ -80,11 +80,14 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
                     .attr('fill', d3.hsl(0, 1, 0.6))
                     .attr("id", "selected");
                     selected.push(data.id);
+                    populationChart(selected);
+
             } else {
                 d3.select(this)
                     .attr('fill', 'rgba(128,124,139,0.61)')
                     .attr("id", "unselected");
                     removeId(selected,data.id);
+                    populationChart(selected);
             }
             console.log(selected);
         });

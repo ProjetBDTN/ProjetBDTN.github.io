@@ -1,20 +1,18 @@
-let selected = ["USA", "FRA"];
-
 // SVG constants
-const width = 400;
-const height = 400;
+const widthChart = 400;
+const heightChart = 400;
 const margin = ({top: 50, right: 50, bottom: 50, left: 60});
 
 // SVG 
-let svgPopulation = d3.select('body').append('svg')
-svgPopulation.attr('width', width)
-    .attr('height', height)
+let svgPopulation = d3.select('#multichart').append('svg')
+svgPopulation.attr('width', widthChart)
+    .attr('height', heightChart)
     .attr("fill", "#F0F0F0");
 var rectangle = svgPopulation.append("rect")
     .attr("x", 0)
     .attr("y", 0)
-    .attr("width", width)
-    .attr("height", height)
+    .attr("width", widthChart)
+    .attr("height", heightChart)
     .attr("rx", 10)
     .attr("ry", 10)
 
@@ -107,12 +105,12 @@ function populationChart(selected){
             // xAxis
             var xScale = d3.scaleLinear()
                 .domain([xMin, xMax])
-                .range([margin.left, width - 2*margin.right]);
+                .range([margin.left, widthChart - 2*margin.right]);
             var xAxis = d3.axisBottom()
                     .scale(xScale)
                     .tickFormat(d3.format(""));
             svgPopulation.append("g")
-                .attr("transform",`translate(0,${height - margin.bottom})`)
+                .attr("transform",`translate(0,${heightChart - margin.bottom})`)
                 .call(xAxis)
                 .selectAll("text")
                     .attr("y", 10)
@@ -131,9 +129,9 @@ function populationChart(selected){
             }
             var yScale = d3.scaleLinear()
                 .domain([yMin, yMax])
-                .range([height-margin.bottom, margin.top/2]);
+                .range([heightChart-margin.bottom, margin.top/2]);
             var yAxis = d3.axisRight(yScale)
-                .tickSize(width-2*margin.right)
+                .tickSize(widthChart-2*margin.right)
                 .tickFormat(function(d) {
                     var s = formatNumber(d / 1e6);
                     return this.parentNode.nextSibling
@@ -173,7 +171,7 @@ function populationChart(selected){
                     .transition()
                     .duration(2000)
                     .ease(d3.easeCubic)
-                    .attr("transform", "translate(" + (width-2*margin.right) + "," + yScale(lastValues[i]) + ")")
+                    .attr("transform", "translate(" + (widthChart-2*margin.right) + "," + yScale(lastValues[i]) + ")")
                     .style("fill", couleurs[i])
                     .style("font-size", "12px")
                     .text(points[i].country);                
