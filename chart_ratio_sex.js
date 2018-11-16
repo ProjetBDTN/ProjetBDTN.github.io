@@ -3,7 +3,8 @@
 var female_population = [];
 var request = new XMLHttpRequest();
 
-request.open('GET', 'http://api.worldbank.org/v2/countries/chn;bra;usa;fra/indicators/SP.POP.TOTL.FE.ZS?date=2017&format=json', true);
+var selected = "chn;bra;usa;fra"
+request.open('GET', `http://api.worldbank.org/v2/countries/${selected}/indicators/SP.POP.TOTL.FE.ZS?date=2017&format=json`, true);
 request.onload = function () {
     //Begin accessing JSON data here
     var requestArray = JSON.parse(this.response);
@@ -35,7 +36,7 @@ var yAxis = g => g
     .attr("transform", `translate(${margin.left},0)`)
     .call(d3.axisLeft(y).tickSizeOuter(0));
 
-const svg = d3.select("body").append("svg");
+const svg = d3.select("#ratio").append("svg");
 
   svg.append("g")
       .attr("fill", "blue")
@@ -44,7 +45,7 @@ const svg = d3.select("body").append("svg");
     .enter().append("rect")
       .attr("x", d => x(0))
       .attr("y", d => y(d.country))
-      .attr("width", 100)
+      .attr("width", 200)
       .attr("height", y.bandwidth());
 	
   svg.append("g")
@@ -54,7 +55,7 @@ const svg = d3.select("body").append("svg");
     .enter().append("rect")
       .attr("x", x(0))
       .attr("y", d => y(d.country))
-      .attr("width", d => d.value)
+      .attr("width", d => d.value*2)
       .attr("height", y.bandwidth());
  
 
@@ -67,4 +68,6 @@ svg.node();
 };
 //Send request
 request.send();
+
+console.log('test');
 
