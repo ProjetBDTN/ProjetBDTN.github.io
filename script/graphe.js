@@ -14,9 +14,11 @@ var rectangle = svgPopulation.append("rect")
     .attr("width", widthChart)
     .attr("height", heightChart)
     .attr("rx", 10)
-    .attr("ry", 10)
+    .attr("ry", 10);
 
-let svgRatio = d3.select("#ratio").append("svg")
+let svgRatio = d3.select("#ratio").append("svg");
+let svgClock = d3.select("#clock").append("svg");
+
 
 
 // Multi-chart transition function
@@ -62,7 +64,7 @@ function sexualRatio(selected){
 	  console.log(female_population);
 
 
-	var width=800;
+	var width=300;
 	var margin = ({top: 30, right: 0, bottom: 10, left: 100});
 	var height = female_population.length * 25 + margin.top + margin.bottom;
 
@@ -127,9 +129,6 @@ function sexualRatio(selected){
 	//Send request
 	request.send();
 }
-
-
-
 
 // Multi-chart display function
 function populationChart(selected){
@@ -270,4 +269,146 @@ function populationChart(selected){
     };
     //Send request
     request.send();
+}
+
+//Local Time Chart
+function clockChart(selected){
+	// JSON result array
+	var timezones = [];
+	var requestClock = new XMLHttpRequest();
+	var path = selectedCountries(selected);
+	requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones`,true);
+	requestClock.onload = function () {
+		//Begin accessing JSON data here
+		var requestArray = JSON.parse(this.response);
+		requestArray.forEach(element => {
+			var tz=element.timezones[0];
+			var gmt = Number(tz.slice(3,6));
+			timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:gmt});
+	  	})
+	  	console.log(timezones);
+	
+		
+		var width = 500,
+		height = 500,
+		radius = Math.min(width, height) / 3,
+		spacing = .09;
+
+		svgClock.selectAll("g").remove();
+		var	formatHour = d3.time.format("%-H hours");
+
+		var color = d3.scaleLinear()
+			.range(["hsl(0,50%,60%)", "hsl(360,50%,60%)"])
+			.interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
+
+		var arcBody = d3.arc()
+			.startAngle(0)
+			.endAngle(function(d) { return d.value * 2 * Math.PI; })
+			.innerRadius(function(d) { return d.index * radius; })
+			.outerRadius(function(d) { return (d.index + spacing) * radius; })
+			.cornerRadius(6);
+
+		var arcCenter = d3.arc()
+			.startAngle(0)
+			.endAngle(function(d) { return d.value * 2 * Math.PI; })
+			.innerRadius(function(d) { return (d.index + spacing / 2) * radius; })
+			.outerRadius(function(d) { return (d.index + spacing / 2) * radius; });
+
+		
+		
+		svgClock.attr("width", width)
+			.attr("height", height)
+		  .append("g")
+			.attr("transform", "translate(" + width / 4 + "," + height / 4+ ")");
+		
+		var field = svgClock.selectAll("g")
+		.data(fields(timezones,timezones.length))
+		.enter().append("g")
+		.attr("id","field");
+		console.log(fields(timezones,timezones.length));
+
+
+		field.append("path")
+			.attr("class", "arc-body");
+
+		field.append("path")
+			.attr("id", function(d, i) { return "arc-center-" + i; })
+			.attr("class", "arc-center");
+
+		field.append("text")
+			.attr("dy", ".35em")
+			.attr("dx", ".75em")
+			.style("text-anchor", "start")
+		  .append("textPath")
+			.attr("startOffset", "50%")
+			.attr("class", "arc-text")
+			.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
+
+		tick();
+
+		d3.select(svgClock.frameElement).style("height", height + "px");
+
+		function tick() {
+			  if (!document.hidden) field
+				  .each(function(d) { this._value = d.value; })
+				  .data(fields(timezones,timezones.length))
+				  .each(function(d) { d.previousValue = this._value; })
+				.transition()
+				  .duration(500)
+				  .each(fieldTransition);
+
+		  setTimeout(tick, 1000 - Date.now() % 1000);
+		}
+
+		function fieldTransition() {
+		  var field = d3.select(this).transition();
+
+		  field.select(".arc-body")
+			  .attrTween("d", arcTween(arcBody))
+			  .style("fill", function(d) { return color(d.value); });
+
+		  field.select(".arc-center")
+			  .attrTween("d", arcTween(arcCenter));
+
+		  field.select(".arc-text")
+			  .text(function(d) { return d.text; });
+		}
+
+		function arcTween(arc) {
+		  return function(d) {
+			var i = d3.interpolateNumber(d.previousValue, d.value);
+			return function(t) {
+			  d.value = i(t);
+			  return arc(d);
+			};
+		  };
+		}
+
+		function NewTime(timezone){
+		var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
+		var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
+		var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
+		return targetDate;
+
+	}
+
+		function fields(timezones,len) {
+		  var now = new Date;
+		  var list = [{}];
+		  var i;
+			//console.log(timezones[0]);
+		  for (i=0; i<len; i++){
+			  var local = {index: (i+3)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
+			  list.push(local);
+		  }
+			/*list = [
+			{index: .2, text: formatHour(now),   value: now.getHours() / 24},
+			{index: .3, text: formatHour(NewTime(8)),   value: NewTime(8).getHours() / 24},
+			{index: .4, text: formatHour(NewTime(-3)),   value: NewTime(-3).getHours() / 24}
+		  ];*/
+		  return list;
+		}
+	};
+	requestClock.send();
+
 }

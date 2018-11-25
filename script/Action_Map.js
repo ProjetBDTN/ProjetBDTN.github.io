@@ -1,4 +1,4 @@
-var height = 600;
+var height = 400;
 var width = 450;
 var svg = d3.select('#map').append('svg');
 var selected = [];
@@ -82,6 +82,7 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
                     selected.push(data.id);
                     populationChart(selected);
 					sexualRatio(selected);
+					clockChart(selected);
 
             } else {
                 d3.select(this)
@@ -90,6 +91,7 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
                     removeId(selected,data.id);
                     populationChart(selected);
 					sexualRatio(selected);
+					clockChart(selected);
             }
             console.log(selected);
         });
