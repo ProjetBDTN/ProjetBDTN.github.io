@@ -32,6 +32,21 @@ function tweenDash() {
         i = d3.interpolateString("0," + l, l + "," + l);
     return function (t) { return i(t); };
 }
+
+//backup, function to get offsetGMT by latlng
+function getGMT(lat,lng){
+	var gmt = 0;			
+	var requestTZ = new XMLHttpRequest();
+	requestTZ.open('GET',`http://api.timezonedb.com/v2.1/get-time-zone?key=L4D4CWMHJLO4&format=json&by=position&lat=${lat}&lng=${lng}`,true);
+	requestTZ.onload = function () {
+		var resp = requestTZ.response;
+		gmt = Number(resp.gmtOffset);
+		//return gmt;
+	};
+	requestTZ.send();
+	return gmt;
+}
+
 // Path function for url request
 function selectedCountries(countries){
     let path = "";
@@ -46,7 +61,7 @@ function selectedCountries(countries){
 	console.log(path)
 }
 
-//Ratio sexual
+//Male-Female ratio chart display function
 function sexualRatio(selected){
 	
 	// JSON result array
@@ -61,7 +76,7 @@ function sexualRatio(selected){
 		requestArray[1].forEach(element => {
 			female_population.push({country:`${element.country.value}`,year:`${element.date}`,value:`${element.value}`});
 	  })
-	  console.log(female_population);
+	  //console.log(female_population);
 
 
 	var width=300;
@@ -130,7 +145,7 @@ function sexualRatio(selected){
 	request.send();
 }
 
-// Multi-chart display function
+// Population-chart display function
 function populationChart(selected){
 
     // Colors choice
@@ -271,24 +286,25 @@ function populationChart(selected){
     request.send();
 }
 
-//Local Time Chart
+//Local Time Chart display function
 function clockChart(selected){
 	// JSON result array
 	var timezones = [];
+	var len = 0;
 	var requestClock = new XMLHttpRequest();
 	var path = selectedCountries(selected);
-	requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones`,true);
+	requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones;latlng`,true);
 	requestClock.onload = function () {
 		//Begin accessing JSON data here
 		var requestArray = JSON.parse(this.response);
 		requestArray.forEach(element => {
 			var tz=element.timezones[0];
 			var gmt = Number(tz.slice(3,6));
-			timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:gmt});
-	  	})
-	  	console.log(timezones);
+			var lat = element.latlng[0];
+			var lng = element.latlng[1];
+			timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
+		})
 	
-		
 		var width = 500,
 		height = 500,
 		radius = Math.min(width, height) / 3,
@@ -318,15 +334,15 @@ function clockChart(selected){
 		
 		svgClock.attr("width", width)
 			.attr("height", height)
-		  .append("g")
-			;
+		  .append("g");
 		
+		//translate(right, down)
 		var field = svgClock.selectAll("g")
 		.data(fields(timezones,timezones.length))
 		.enter().append("g")
 		.attr("transform", "translate(" + width/5 + "," + height/5+ ") scale(0.8)")
 		.attr("id","field");
-		console.log(fields(timezones,timezones.length));
+		//console.log(fields(timezones,timezones.length));
 
 
 		field.append("path")
@@ -386,9 +402,12 @@ function clockChart(selected){
 		}
 
 		function NewTime(timezone){
-		var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
-		var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
-		var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
+		var offset_GMT = new Date().getTimezoneOffset(); // diff between local time and UTC+0, unit:minute 本地时间和格林威治的时间差，单位为分钟
+		var nowDate = new Date().getTime(); // diff between local time and gmt, unit:millisecond 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
+		//if parametre is in timezone 
+			var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
+		//if parametre is in millisecond
+		//var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 1000);
 		return targetDate;
 
 	}
@@ -402,13 +421,9 @@ function clockChart(selected){
 			  var local = {index: (i+1)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
 			  list.push(local);
 		  }
-			/*list = [
-			{index: .2, text: formatHour(now),   value: now.getHours() / 24},
-			{index: .3, text: formatHour(NewTime(8)),   value: NewTime(8).getHours() / 24},
-			{index: .4, text: formatHour(NewTime(-3)),   value: NewTime(-3).getHours() / 24}
-		  ];*/
 		  return list;
 		}
+
 	};
 	requestClock.send();
 
