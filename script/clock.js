@@ -1,15 +1,16 @@
-var width = 960,
-    height = 800,
-    radius = Math.min(width, height) / 1.9,
+
+var width = 500,
+    height = 500,
+    radius = Math.min(width, height) / 3,
     spacing = .09;
 
 
 
-var	formatHour = d3.timeFormat("%-H hours");
+var	formatHour = d3.time.format("%-H hours");
 
 
 
-var color = d3.scaleLinear()
+var color = d3.scale.linear()
     .range(["hsl(-180,60%,50%)", "hsl(180,60%,50%)"])
     .interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
 
@@ -27,15 +28,16 @@ var arcCenter = d3.arc()
     .innerRadius(function(d) { return (d.index + spacing / 2) * radius; })
     .outerRadius(function(d) { return (d.index + spacing / 2) * radius; });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#clock").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    .attr("transform", "translate(" + width / 4 + "," + height / 4 + ")");
 
 var field = svg.selectAll("g")
     .data(fields)
   .enter().append("g");
+console.log(fields);
 
 field.append("path")
     .attr("class", "arc-body");
@@ -105,8 +107,8 @@ function NewTime(timezone)
 function fields() {
   var now = new Date;
   return [
-    {index: .3, text: formatHour(now),   value: now.getHours() / 24},
-	{index: .4, text: formatHour(NewTime(8)),   value: NewTime(8).getHours() / 24},
-	{index: .5, text: formatHour(NewTime(-3)),   value: NewTime(-3).getHours() / 24}
+    {index: .2, text: formatHour(now),   value: now.getHours() / 24},
+	{index: .3, text: formatHour(NewTime(3)),   value: NewTime(3).getHours() / 24},
+	{index: .4, text: formatHour(NewTime(-8)),   value: NewTime(-8).getHours() / 24}
   ];
 }
