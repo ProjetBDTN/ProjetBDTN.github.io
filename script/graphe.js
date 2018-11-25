@@ -319,11 +319,12 @@ function clockChart(selected){
 		svgClock.attr("width", width)
 			.attr("height", height)
 		  .append("g")
-			.attr("transform", "translate(" + width / 4 + "," + height / 4+ ")");
+			;
 		
 		var field = svgClock.selectAll("g")
 		.data(fields(timezones,timezones.length))
 		.enter().append("g")
+		.attr("transform", "translate(" + width/5 + "," + height/5+ ") scale(0.8)")
 		.attr("id","field");
 		console.log(fields(timezones,timezones.length));
 
@@ -346,7 +347,7 @@ function clockChart(selected){
 
 		tick();
 
-		d3.select(svgClock.frameElement).style("height", height + "px");
+		d3.select(self.frameElement).style("height", height + "px");
 
 		function tick() {
 			  if (!document.hidden) field
@@ -398,7 +399,7 @@ function clockChart(selected){
 		  var i;
 			//console.log(timezones[0]);
 		  for (i=0; i<len; i++){
-			  var local = {index: (i+3)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
+			  var local = {index: (i+1)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
 			  list.push(local);
 		  }
 			/*list = [

@@ -32,7 +32,7 @@ var svg = d3.select("#clock").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + width / 4 + "," + height / 4 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ") scale(0.5)");
 
 var field = svg.selectAll("g")
     .data(fields)
