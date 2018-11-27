@@ -22,37 +22,38 @@
     </head>
 
     <body>
-        <nav class="navbar navbar-dark bg-dark">
-            <a class="navbar-brand" href="">
-                <img src="/docs/4.1/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-                WWC
-            </a>
-        </nav>
-        <div id="container"></div>
-            <div class="row">
-                <div class="col">
-                    <div id="map"></div>
-                </div>
-                <div class="col">
-                    <div id="multichart"></div>
-                </div>
-            </div>
-			<div class="row">
-				<div class="col">
-					<div id="ratio">
-					<p>Female-Male Ratio</p>
-					</div>
-				</div>
-				<div>
-					<div id="clock">
-					<p>Local Time</p>
-					</div>
-				</div>
-				
-			</div>
-
- 
-
+            <nav class="navbar navbar-dark bg-dark">
+                    <a class="navbar-brand" href="">
+                        <img src="/docs/4.1/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+                        WWC
+                    </a>
+                </nav>
+        
+            <main role="main">
+        
+                <section class="row"> 
+                    <div class="col-7 mt-2">
+                        <div id="map"></div>
+                    </div>
+                    <div class="col-5 mt-2">
+                        <div class="row" >
+                            <div id="multichart"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mt-2">
+                                <br>
+                                <p class="text-center">Women vs Men</p>
+                                <div id="ratio"></div>
+                            </div>
+                            <div class="col-6 mt-2">  
+                                    <br>       
+                                <p class="text-center">Local Time</p>
+                                <div id="clock"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
 
         <div class="chartTooltip hidden" data-html="true">
             <p>
