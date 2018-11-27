@@ -306,7 +306,3 @@ function populationChart(selected){
         request.send();
     }
 }
-// On load display world population
-window.onload = function() {
-    populationChart("WLD");
-};
