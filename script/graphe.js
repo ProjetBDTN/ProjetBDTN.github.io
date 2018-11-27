@@ -415,6 +415,130 @@ function populationChart(selected){
     }
 }
 
+function svgClockChart(selected,timezones){
+	var width_clock = innerWidth*2.5/12 - 20,
+	height_clock = innerHeight/2,
+	radius = Math.min(width_clock, height_clock) / 3,
+	spacing = .09;
+
+	svgClock.selectAll("g").remove();
+	var	formatHour = d3.time.format("%-H hours");
+
+	var color = d3.scaleLinear()
+		.range(["hsl(0,50%,60%)", "hsl(360,50%,60%)"])
+		.interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
+
+	var arcBody = d3.arc()
+		.startAngle(0)
+		.endAngle(function(d) { return d.value * 2 * Math.PI; })
+		.innerRadius(function(d) { return d.index * radius; })
+		.outerRadius(function(d) { return (d.index + spacing) * radius; })
+		.cornerRadius(6);
+
+	var arcCenter = d3.arc()
+		.startAngle(0)
+		.endAngle(function(d) { return d.value * 2 * Math.PI; })
+		.innerRadius(function(d) { return (d.index + spacing / 2) * radius; })
+		.outerRadius(function(d) { return (d.index + spacing / 2) * radius; });
+
+	svgClock.attr("width", width_clock)
+		.attr("height", height_clock)
+	  .append("g");
+
+	//translate(right, down)
+	var field = svgClock.selectAll("g")
+	.data(fields(timezones,timezones.length,selected))
+	.enter().append("g")
+	.attr("transform", "translate(" + width_clock/2 + "," + height_clock/6+ ") scale(0.9)")
+	.attr("id","field");
+	//console.log(fields(timezones,timezones.length));
+
+
+	field.append("path")
+		.attr("class", "arc-body");
+
+	field.append("path")
+		.attr("id", function(d, i) { return "arc-center-" + i; })
+		.attr("class", "arc-center");
+
+	field.append("text")
+		.attr("dy", ".25em")
+		.attr("dx", ".55em")
+		.style("text-anchor", "start")
+	  .append("textPath")
+		.attr("startOffset", "50%")
+		.attr("class", "arc-text")
+		.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
+
+	tick();
+
+	d3.select(self.frameElement).style("height", height_clock + "px");
+
+	function tick() {
+		  if (!document.hidden) field
+			  .each(function(d) { this._value = d.value; })
+			  .data(fields(timezones,timezones.length,selected))
+			  .each(function(d) { d.previousValue = this._value; })
+			.transition()
+			  .duration(500)
+			  .each(fieldTransition);
+
+	  setTimeout(tick, 1000 - Date.now() % 1000);
+	}
+
+	function fieldTransition() {
+	  var field = d3.select(this).transition();
+
+	  field.select(".arc-body")
+		  .attrTween("d", arcTween(arcBody))
+		  .style("fill", function(d) { return color(d.value); });
+
+	  field.select(".arc-center")
+		  .attrTween("d", arcTween(arcCenter));
+
+	  field.select(".arc-text")
+		  .text(function(d) { return d.text; });
+	}
+
+	function arcTween(arc) {
+	  return function(d) {
+		var i = d3.interpolateNumber(d.previousValue, d.value);
+		return function(t) {
+		  d.value = i(t);
+		  return arc(d);
+		};
+	  };
+	}
+	
+	function NewTime(timezone)
+	{
+		var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
+		var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
+		var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone*60*60 * 1000);
+		return targetDate;
+
+	}
+	
+	function fields(timezones,len,selected) {
+		if(!selected.length || selected == "WLD"){
+			var now = new Date;
+			return [{},
+				{index: .2, text: "now",   value: now.getHours()/ 24}
+			  ];
+		}
+		else{
+		  var list = [{}];
+		  var i;
+			//console.log(timezones[0]);
+		  for (i=0; i<len; i++){
+			  var local = {index: (i+4)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
+			  list.push(local);
+		  }
+		  return list;
+		}
+	}
+}
+
 //Local Time Chart display function
 function clockChart(selected){
 	// JSON result array
@@ -422,138 +546,25 @@ function clockChart(selected){
 	var len = 0;
 	var requestClock = new XMLHttpRequest();
 	var path = selectedCountries(selected);
-	requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones;latlng`,true);
-	requestClock.onload = function () {
-		//Begin accessing JSON data here
-		var requestArray = JSON.parse(this.response);
-		requestArray.forEach(element => {
-			var tz=element.timezones[0];
-			var gmt = Number(tz.slice(3,6));
-			var lat = element.latlng[0];
-			var lng = element.latlng[1];
-			timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
-		})
-	
-		var width_clock = innerWidth*2.5/12 - 20,
-		height_clock = innerHeight/2,
-		radius = Math.min(width_clock, height_clock) / 3,
-		spacing = .09;
-
-		svgClock.selectAll("g").remove();
-		var	formatHour = d3.time.format("%-H hours");
-
-		var color = d3.scaleLinear()
-			.range(["hsl(0,50%,60%)", "hsl(360,50%,60%)"])
-			.interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
-
-		var arcBody = d3.arc()
-			.startAngle(0)
-			.endAngle(function(d) { return d.value * 2 * Math.PI; })
-			.innerRadius(function(d) { return d.index * radius; })
-			.outerRadius(function(d) { return (d.index + spacing) * radius; })
-			.cornerRadius(6);
-
-		var arcCenter = d3.arc()
-			.startAngle(0)
-			.endAngle(function(d) { return d.value * 2 * Math.PI; })
-			.innerRadius(function(d) { return (d.index + spacing / 2) * radius; })
-			.outerRadius(function(d) { return (d.index + spacing / 2) * radius; });
-
+	if(!selected.length || selected == "WLD"){
+		svgClockChart(selected,timezones);
 		
-		
-		svgClock.attr("width", width_clock)
-			.attr("height", height_clock)
-		  .append("g");
-		
-		//translate(right, down)
-		var field = svgClock.selectAll("g")
-		.data(fields(timezones,timezones.length))
-		.enter().append("g")
-		.attr("transform", "translate(" + width_clock/2 + "," + height_clock/4+ ") scale(0.8)")
-		.attr("id","field");
-		//console.log(fields(timezones,timezones.length));
+	}else{
+		requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones;latlng`,true);
+		requestClock.onload = function () {
+			//Begin accessing JSON data here
+			var requestArray = JSON.parse(this.response);
+			requestArray.forEach(element => {
+				var tz=element.timezones[0];
+				var gmt = Number(tz.slice(3,6));
+				var lat = element.latlng[0];
+				var lng = element.latlng[1];
+				timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
+			})
 
+			svgClockChart(selected,timezones);
 
-		field.append("path")
-			.attr("class", "arc-body");
-
-		field.append("path")
-			.attr("id", function(d, i) { return "arc-center-" + i; })
-			.attr("class", "arc-center");
-
-		field.append("text")
-			.attr("dy", ".35em")
-			.attr("dx", ".75em")
-			.style("text-anchor", "start")
-		  .append("textPath")
-			.attr("startOffset", "50%")
-			.attr("class", "arc-text")
-			.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
-
-		tick();
-
-		d3.select(self.frameElement).style("height", height_clock + "px");
-
-		function tick() {
-			  if (!document.hidden) field
-				  .each(function(d) { this._value = d.value; })
-				  .data(fields(timezones,timezones.length))
-				  .each(function(d) { d.previousValue = this._value; })
-				.transition()
-				  .duration(500)
-				  .each(fieldTransition);
-
-		  setTimeout(tick, 1000 - Date.now() % 1000);
-		}
-
-		function fieldTransition() {
-		  var field = d3.select(this).transition();
-
-		  field.select(".arc-body")
-			  .attrTween("d", arcTween(arcBody))
-			  .style("fill", function(d) { return color(d.value); });
-
-		  field.select(".arc-center")
-			  .attrTween("d", arcTween(arcCenter));
-
-		  field.select(".arc-text")
-			  .text(function(d) { return d.text; });
-		}
-
-		function arcTween(arc) {
-		  return function(d) {
-			var i = d3.interpolateNumber(d.previousValue, d.value);
-			return function(t) {
-			  d.value = i(t);
-			  return arc(d);
-			};
-		  };
-		}
-
-		function NewTime(timezone){
-		var offset_GMT = new Date().getTimezoneOffset(); // diff between local time and UTC+0, unit:minute 本地时间和格林威治的时间差，单位为分钟
-		var nowDate = new Date().getTime(); // diff between local time and gmt, unit:millisecond 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
-		//if parametre is in timezone 
-			var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
-		//if parametre is in millisecond
-		//var targetDate = new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 1000);
-		return targetDate;
-
+		};
+		requestClock.send();
 	}
-
-		function fields(timezones,len) {
-		  var now = new Date;
-		  var list = [{}];
-		  var i;
-			//console.log(timezones[0]);
-		  for (i=0; i<len; i++){
-			  var local = {index: (i+1)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
-			  list.push(local);
-		  }
-		  return list;
-		}
-
-	};
-	requestClock.send();
-
 }
