@@ -1,5 +1,5 @@
-var height = 400;
-var width = 450;
+var height = innerHeight - 20;
+var width = innerWidth*7/12;
 var svg = d3.select('#map').append('svg');
 var selected = [];
 
@@ -24,11 +24,8 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
     var oldTranslate = projection.translate();
 
     //two sizes of the map
-    xy = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 0.9)
-        .translate([width / 2, height / 2]);
-
-    xy1 = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 1)
-        .translate([width / 2, height / 2]);
+    xy = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 1)
+        .translate([width / 2, height/ 2]);
 
     path = d3.geo.path().projection(xy);
 
@@ -96,3 +93,9 @@ d3.json("https://raw.githubusercontent.com/python-visualization/folium/master/ex
             console.log(selected);
         });
 });
+// On load display world population
+window.onload = function() {
+    populationChart("WLD");
+    sexualRatio("WLD");
+    clockChart("WLD");
+};
