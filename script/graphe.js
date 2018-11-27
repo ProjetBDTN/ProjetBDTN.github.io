@@ -4,7 +4,7 @@ const heightChart = innerHeight/2;
 const margin = ({top: 50, right: 50, bottom: 50, left: 60});
 
 // SVG 
-let svgPopulation = d3.select('#multichart').append('svg')
+let svgPopulation = d3.select('#multichart').append('svg');
 svgPopulation.attr('width', widthChart)
     .attr('height', heightChart)
     .attr("fill", "#343A40");
@@ -69,7 +69,14 @@ function sexualRatio(selected){
 	var request = new XMLHttpRequest();
 
 	var path = selectedCountries(selected);
-	request.open('GET', `http://api.worldbank.org/v2/countries/${path}/indicators/SP.POP.TOTL.FE.ZS?date=2017&format=json`, true);
+	
+	if(!selected.length || selected == "WLD"){
+		url = `http://api.worldbank.org/v2/countries/WLD/indicators/SP.POP.TOTL.FE.ZS?date=2017&format=json`;
+		
+	}else{
+		var url = `http://api.worldbank.org/v2/countries/${path}/indicators/SP.POP.TOTL.FE.ZS?date=2017&format=json`;
+	}
+	request.open('GET', url, true);
 	request.onload = function () {
 		//Begin accessing JSON data here
 		var requestArray = JSON.parse(this.response);
@@ -78,17 +85,12 @@ function sexualRatio(selected){
 	  })
 	  //console.log(female_population);
 
-
 	var width=innerWidth*2.5/12 - 20;
 	var margin = ({top: 30, right: 0, bottom: 10, left: 100});
 	var height = female_population.length * 25 + margin.top + margin.bottom;
 
 
-	//var format = d3.format(".3f");
-	
-
-
-	//const svgRatio = d3.select("#ratio").append("svg");
+	//initialize the graphe
 	svgRatio.selectAll("path").remove();
 	svgRatio.selectAll("#male").remove();
 	svgRatio.selectAll("#female").remove();
@@ -108,7 +110,8 @@ function sexualRatio(selected){
 	var yAxis = g => g
 		.attr("transform", `translate(${margin.left},0)`)
 		.call(d3.axisLeft(y).tickSizeOuter(0));
-		
+
+	//male bar
 	svgRatio.append("g")
 		  .attr("fill", "blue")
 		.selectAll("rect")
@@ -120,7 +123,8 @@ function sexualRatio(selected){
 		  .attr("height", y.bandwidth())
 		.attr("id","male");
 
-	  svgRatio.append("g")
+	//female chart  
+	svgRatio.append("g")
 		  .attr("fill", "red")
 		.selectAll("rect")
 		.data(female_population)
@@ -131,18 +135,16 @@ function sexualRatio(selected){
 		  .attr("height", y.bandwidth())
 				.attr("id","female");
 
-
-
-	 svgRatio.append("g")
+	//Y axis
+	svgRatio.append("g")
 			.attr("id","yAxis")
 		  .call(yAxis);
 
 	svgRatio.node();
-	
-
 	};
 	//Send request
 	request.send();
+	
 }
 
 // Population-chart display function
