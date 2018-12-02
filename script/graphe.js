@@ -46,7 +46,6 @@ function getGMT(lat,lng){
 	requestTZ.send();
 	return gmt;
 }
-
 // Path function for url request
 function selectedCountries(countries){
     let path = "";
@@ -81,12 +80,12 @@ function sexualRatio(selected){
 		//Begin accessing JSON data here
 		var requestArray = JSON.parse(this.response);
 		requestArray[1].forEach(element => {
-			female_population.push({country:`${element.country.value}`,year:`${element.date}`,value:`${element.value}`});
+			female_population.push({country:`${element.country.id}`,year:`${element.date}`,value:`${element.value}`});
 	  })
 	  //console.log(female_population);
 
-	var width=innerWidth*2.5/12 - 20;
-	var margin = ({top: 30, right: 0, bottom: 10, left: 100});
+	var width=innerWidth*2.5/12-20;
+	var margin = ({top: 30, right: 0, bottom: 10, left: 30});
 	var height = female_population.length * 25 + margin.top + margin.bottom;
 
 
@@ -94,6 +93,7 @@ function sexualRatio(selected){
 	svgRatio.selectAll("path").remove();
 	svgRatio.selectAll("#male").remove();
 	svgRatio.selectAll("#female").remove();
+	svgRatio.selectAll("text").remove();
 	svgRatio.selectAll("#yAxis").remove();
 
 
@@ -104,41 +104,63 @@ function sexualRatio(selected){
 	var y = d3.scaleBand()
 		.domain(female_population.map(d => d.country))
 		.range([margin.top, height - margin.bottom])
-		.padding(0.5);
+		.padding(0.3);
 
 
 	var yAxis = g => g
 		.attr("transform", `translate(${margin.left},0)`)
 		.call(d3.axisLeft(y).tickSizeOuter(0));
+		
+		
 
 	//male bar
-	svgRatio.append("g")
-		  .attr("fill", "blue")
+	var bar=svgRatio.append("g")
 		.selectAll("rect")
 		.data(female_population)
-		.enter().append("rect")
-		  .attr("x", d => x(0))
-		  .attr("y", d => y(d.country))
-		  .attr("width", 200)
-		  .attr("height", y.bandwidth())
+		.enter();
+	bar.append("rect")
+		.attr("fill", "blue")
+		.attr("height", y.bandwidth())
+		.attr("x", d => x(0))
+		.attr("y", d => y(d.country))
+		.attr("width", 0)
+		.transition()
+		.duration(2000)
+		.delay(function (d, i) {return i*100;})
+		.attr("width", 200)
 		.attr("id","male");
 
+	
 	//female chart  
-	svgRatio.append("g")
-		  .attr("fill", "red")
+	/*var barfemale=svgRatio.append("g")	  
 		.selectAll("rect")
 		.data(female_population)
-		.enter().append("rect")
-		  .attr("x", x(0))
-		  .attr("y", d => y(d.country))
-		  .attr("width", d => d.value*2)
-		  .attr("height", y.bandwidth())
-				.attr("id","female");
+		.enter();*/
+	bar.append("rect")
+		.attr("fill", "red")
+		.attr("height", y.bandwidth())
+		.attr("x", x(0))
+		.attr("y", d => y(d.country))
+		.attr("width", 0)
+		.transition()
+		.duration(2000)
+		.delay(function (d, i) {return i*100;})
+		.attr("width", d => d.value*2) 
+		.attr("id","female");
 
 	//Y axis
 	svgRatio.append("g")
 			.attr("id","yAxis")
 		  .call(yAxis);
+		
+	bar.append("text")
+		.data(female_population)
+		.attr("height", y.bandwidth())
+		.attr("x", x(0))
+		.attr("y", d => y(d.country)+10)
+		.attr("dy", ".2em")
+		.attr("fill","white")
+		.text(function(d) { return parseFloat(d.value).toFixed(2); });
 
 	svgRatio.node();
 	};
@@ -149,17 +171,7 @@ function sexualRatio(selected){
 
 // Population-chart display function
 function populationChart(selected){
-    let couleurs = [];
-    if(!selected.length){
-        couleurs.push(d3.hsl(0.5, 0.5, 0.6));
-    }else{
-        // Colors choice
-        let nbData = selected.length;
-        let delta = 360/nbData;
-        for(let i=0;i<nbData;i++){
-            couleurs.push(d3.hsl(delta*i, 0.5, 0.6));
-        }
-    }
+    let couleurs=couleursList(selected);
     // population array gets the request result
     var population = [];
     // Path function calling
@@ -418,12 +430,13 @@ function populationChart(selected){
 function svgClockChart(selected,timezones){
 	var width_clock = innerWidth*2.5/12 - 20,
 	height_clock = innerHeight/2,
-	radius = Math.min(width_clock, height_clock) / 3,
-	spacing = .09;
+	radius = Math.min(width_clock, height_clock) / 2,
+	spacing = .08;
 
 	svgClock.selectAll("g").remove();
 	var	formatHour = d3.time.format("%-H hours");
 
+	var couleur=couleursList(selected);
 	var color = d3.scaleLinear()
 		.range(["hsl(0,50%,60%)", "hsl(360,50%,60%)"])
 		.interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
@@ -449,7 +462,7 @@ function svgClockChart(selected,timezones){
 	var field = svgClock.selectAll("g")
 	.data(fields(timezones,timezones.length,selected))
 	.enter().append("g")
-	.attr("transform", "translate(" + width_clock/2 + "," + height_clock/6+ ") scale(0.9)")
+	.attr("transform", "translate(" + width_clock/1.5 + "," + height_clock/3+ ") scale(0.9)")
 	.attr("id","field");
 	//console.log(fields(timezones,timezones.length));
 
@@ -462,11 +475,12 @@ function svgClockChart(selected,timezones){
 		.attr("class", "arc-center");
 
 	field.append("text")
-		.attr("dy", ".25em")
-		.attr("dx", ".55em")
+		.attr("dy", ".30em")
+		.attr("dx", ".30em")
 		.style("text-anchor", "start")
 	  .append("textPath")
-		.attr("startOffset", "50%")
+		.attr("startOffset", "25%")
+		.attr("side","right")
 		.attr("class", "arc-text")
 		.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
 
@@ -480,7 +494,8 @@ function svgClockChart(selected,timezones){
 			  .data(fields(timezones,timezones.length,selected))
 			  .each(function(d) { d.previousValue = this._value; })
 			.transition()
-			  .duration(500)
+			.duration(20000)
+			.delay(function (d, i) {return i*100;})
 			  .each(fieldTransition);
 
 	  setTimeout(tick, 1000 - Date.now() % 1000);
@@ -491,6 +506,7 @@ function svgClockChart(selected,timezones){
 
 	  field.select(".arc-body")
 		  .attrTween("d", arcTween(arcBody))
+		  //.style("fill",function(d,i){return couleur[]});
 		  .style("fill", function(d) { return color(d.value); });
 
 	  field.select(".arc-center")
@@ -531,7 +547,14 @@ function svgClockChart(selected,timezones){
 		  var i;
 			//console.log(timezones[0]);
 		  for (i=0; i<len; i++){
-			  var local = {index: (i+4)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
+			  var local = {};
+			  if (timezones[i].country =='FR'){
+				  var now = new Date;
+			  	  local = {index: (i+4)/10, text:timezones[i].country, value: now.getHours()/ 24};
+			  }
+			  else{
+				  local = {index: (i+4)/10, text:timezones[i].country, value: NewTime(timezones[i].timezone).getHours()/24};
+			  }
 			  list.push(local);
 		  }
 		  return list;
@@ -550,7 +573,7 @@ function clockChart(selected){
 		svgClockChart(selected,timezones);
 		
 	}else{
-		requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones;latlng`,true);
+		requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=alpha2Code;capital;timezones;latlng`,true);
 		requestClock.onload = function () {
 			//Begin accessing JSON data here
 			var requestArray = JSON.parse(this.response);
@@ -559,7 +582,7 @@ function clockChart(selected){
 				var gmt = Number(tz.slice(3,6));
 				var lat = element.latlng[0];
 				var lng = element.latlng[1];
-				timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
+				timezones.push({country:`${element.alpha2Code}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
 			})
 
 			svgClockChart(selected,timezones);
@@ -567,4 +590,19 @@ function clockChart(selected){
 		};
 		requestClock.send();
 	}
+}
+
+function couleursList(selected){
+	let couleurs = [];
+    if(!selected.length){
+        couleurs.push(d3.hsl(0.5, 0.5, 0.6));
+    }else{
+        // Colors choice
+        let nbData = selected.length;
+        let delta = 360/nbData;
+        for(let i=0;i<nbData;i++){
+            couleurs.push(d3.hsl(delta*i, 0.5, 0.6));
+        }
+    }
+	return couleurs;
 }
