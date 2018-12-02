@@ -1,4 +1,4 @@
-var height = innerHeight - 20;
+var height = innerHeight;
 var width = innerWidth*7/12;
 var svg = d3.select('#map').append('svg');
 var selected = [];

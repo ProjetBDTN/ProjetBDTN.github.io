@@ -1,6 +1,6 @@
 // SVG constants
-const widthChart = innerWidth*5/12 - 20;
-const heightChart = innerHeight/2;
+const widthChart = innerWidth*5/12 - 10;
+const heightChart = innerHeight/2.3;
 const margin = ({top: 50, right: 50, bottom: 50, left: 60});
 
 // SVG 
@@ -13,8 +13,8 @@ var rectangle = svgPopulation.append("rect")
     .attr("y", 0)
     .attr("width", widthChart)
     .attr("height", heightChart)
-    .attr("rx", 10)
-    .attr("ry", 10);
+    .attr("rx", 5)
+    .attr("ry", 5);
 
 let svgRatio = d3.select("#ratio").append("svg");
 let svgClock = d3.select("#clock").append("svg");
@@ -57,7 +57,6 @@ function selectedCountries(countries){
         path = path + countries[i]+";";
         }
     }
-	console.log(path)
 }
 
 //Male-Female ratio chart display function
@@ -84,7 +83,7 @@ function sexualRatio(selected){
 	  })
 	  //console.log(female_population);
 
-	var width=innerWidth*2.5/12-20;
+    var width=(innerWidth*5/12 - 20)/2;
 	var margin = ({top: 30, right: 0, bottom: 10, left: 30});
 	var height = female_population.length * 25 + margin.top + margin.bottom;
 
@@ -180,7 +179,6 @@ function populationChart(selected){
     // This return countries selected and population for all years (1960-2018)
     // Display world if no data or when loading
     if(!selected.length || selected == "WLD"){
-        console.log("H");
         var url = "http://api.worldbank.org/v2/countries/WLD/indicators/SP.POP.TOTL?per_page=2000&format=json";
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
@@ -428,9 +426,9 @@ function populationChart(selected){
 }
 
 function svgClockChart(selected,timezones){
-	var width_clock = innerWidth*2.5/12 - 20,
-	height_clock = innerHeight/2,
-	radius = Math.min(width_clock, height_clock) / 2,
+    var width_clock = innerWidth/6,
+	height_clock = innerHeight/4 - 5,
+	radius = Math.min(width_clock, height_clock) /1.5,
 	spacing = .08;
 
 	svgClock.selectAll("g").remove();
@@ -462,7 +460,7 @@ function svgClockChart(selected,timezones){
 	var field = svgClock.selectAll("g")
 	.data(fields(timezones,timezones.length,selected))
 	.enter().append("g")
-	.attr("transform", "translate(" + width_clock/1.5 + "," + height_clock/3+ ") scale(0.9)")
+	.attr("transform", "translate(" + width_clock/2.2 + "," + height_clock/2+ ") scale(0.9)")
 	.attr("id","field");
 	//console.log(fields(timezones,timezones.length));
 
