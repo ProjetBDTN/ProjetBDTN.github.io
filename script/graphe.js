@@ -81,12 +81,12 @@ function sexualRatio(selected){
 		//Begin accessing JSON data here
 		var requestArray = JSON.parse(this.response);
 		requestArray[1].forEach(element => {
-			female_population.push({country:`${element.country.value}`,year:`${element.date}`,value:`${element.value}`});
+			female_population.push({country:`${element.country.id}`,year:`${element.date}`,value:`${element.value}`});
 	  })
 	  //console.log(female_population);
 
-	var width=innerWidth*2.5/12 - 20;
-	var margin = ({top: 30, right: 0, bottom: 10, left: 100});
+	var width=innerWidth*2.5/12-20;
+	var margin = ({top: 30, right: 0, bottom: 10, left: 30});
 	var height = female_population.length * 25 + margin.top + margin.bottom;
 
 
@@ -441,7 +441,7 @@ function populationChart(selected){
 function svgClockChart(selected,timezones){
 	var width_clock = innerWidth*2.5/12 - 20,
 	height_clock = innerHeight/2,
-	radius = Math.min(width_clock, height_clock) / 3,
+	radius = Math.min(width_clock, height_clock) / 2,
 	spacing = .08;
 
 	svgClock.selectAll("g").remove();
@@ -472,7 +472,7 @@ function svgClockChart(selected,timezones){
 	var field = svgClock.selectAll("g")
 	.data(fields(timezones,timezones.length,selected))
 	.enter().append("g")
-	.attr("transform", "translate(" + width_clock/2 + "," + height_clock/6+ ") scale(0.9)")
+	.attr("transform", "translate(" + width_clock/1.5 + "," + height_clock/3+ ") scale(0.9)")
 	.attr("id","field");
 	//console.log(fields(timezones,timezones.length));
 
@@ -485,11 +485,12 @@ function svgClockChart(selected,timezones){
 		.attr("class", "arc-center");
 
 	field.append("text")
-		.attr("dy", ".05em")
-		.attr("dx", ".1em")
+		.attr("dy", ".30em")
+		.attr("dx", ".30em")
 		.style("text-anchor", "start")
 	  .append("textPath")
-		.attr("startOffset", "0%")
+		.attr("startOffset", "1%")
+		.attr("side","right")
 		.attr("class", "arc-text")
 		.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
 
@@ -503,7 +504,8 @@ function svgClockChart(selected,timezones){
 			  .data(fields(timezones,timezones.length,selected))
 			  .each(function(d) { d.previousValue = this._value; })
 			.transition()
-			.duration(500)
+			.duration(20000)
+			.delay(function (d, i) {return i*100;})
 			  .each(fieldTransition);
 
 	  setTimeout(tick, 1000 - Date.now() % 1000);
@@ -555,7 +557,7 @@ function svgClockChart(selected,timezones){
 			//console.log(timezones[0]);
 		  for (i=0; i<len; i++){
 			  var local = {};
-			  if (timezones[i].country =='France'){
+			  if (timezones[i].country =='FR'){
 				  var now = new Date;
 			  	  local = {index: (i+4)/10, text:timezones[i].country, value: now.getHours()/ 24};
 			  }
@@ -580,7 +582,7 @@ function clockChart(selected){
 		svgClockChart(selected,timezones);
 		
 	}else{
-		requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=name;capital;timezones;latlng`,true);
+		requestClock.open('GET', `https://restcountries.eu/rest/v2/alpha?codes=${path}&fields=alpha2Code;capital;timezones;latlng`,true);
 		requestClock.onload = function () {
 			//Begin accessing JSON data here
 			var requestArray = JSON.parse(this.response);
@@ -589,7 +591,7 @@ function clockChart(selected){
 				var gmt = Number(tz.slice(3,6));
 				var lat = element.latlng[0];
 				var lng = element.latlng[1];
-				timezones.push({country:`${element.name}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
+				timezones.push({country:`${element.alpha2Code}`,capital:`${element.capital}`,timezone:`${gmt}`,lat:`${lat}`,lng:`${lng}`});
 			})
 
 			svgClockChart(selected,timezones);
