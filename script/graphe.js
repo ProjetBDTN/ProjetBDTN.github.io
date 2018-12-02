@@ -46,7 +46,6 @@ function getGMT(lat,lng){
 	requestTZ.send();
 	return gmt;
 }
-
 // Path function for url request
 function selectedCountries(countries){
     let path = "";
@@ -172,17 +171,7 @@ function sexualRatio(selected){
 
 // Population-chart display function
 function populationChart(selected){
-    let couleurs = [];
-    if(!selected.length){
-        couleurs.push(d3.hsl(0.5, 0.5, 0.6));
-    }else{
-        // Colors choice
-        let nbData = selected.length;
-        let delta = 360/nbData;
-        for(let i=0;i<nbData;i++){
-            couleurs.push(d3.hsl(delta*i, 0.5, 0.6));
-        }
-    }
+    let couleurs=couleursList(selected);
     // population array gets the request result
     var population = [];
     // Path function calling
@@ -447,6 +436,7 @@ function svgClockChart(selected,timezones){
 	svgClock.selectAll("g").remove();
 	var	formatHour = d3.time.format("%-H hours");
 
+	var couleur=couleursList(selected);
 	var color = d3.scaleLinear()
 		.range(["hsl(0,50%,60%)", "hsl(360,50%,60%)"])
 		.interpolate(function(a, b) { var i = d3.interpolateString(a, b); return function(t) { return d3.hsl(i(t)); }; });
@@ -489,7 +479,7 @@ function svgClockChart(selected,timezones){
 		.attr("dx", ".30em")
 		.style("text-anchor", "start")
 	  .append("textPath")
-		.attr("startOffset", "1%")
+		.attr("startOffset", "25%")
 		.attr("side","right")
 		.attr("class", "arc-text")
 		.attr("xlink:href", function(d, i) { return "#arc-center-" + i; });
@@ -516,6 +506,7 @@ function svgClockChart(selected,timezones){
 
 	  field.select(".arc-body")
 		  .attrTween("d", arcTween(arcBody))
+		  //.style("fill",function(d,i){return couleur[]});
 		  .style("fill", function(d) { return color(d.value); });
 
 	  field.select(".arc-center")
@@ -599,4 +590,19 @@ function clockChart(selected){
 		};
 		requestClock.send();
 	}
+}
+
+function couleursList(selected){
+	let couleurs = [];
+    if(!selected.length){
+        couleurs.push(d3.hsl(0.5, 0.5, 0.6));
+    }else{
+        // Colors choice
+        let nbData = selected.length;
+        let delta = 360/nbData;
+        for(let i=0;i<nbData;i++){
+            couleurs.push(d3.hsl(delta*i, 0.5, 0.6));
+        }
+    }
+	return couleurs;
 }
