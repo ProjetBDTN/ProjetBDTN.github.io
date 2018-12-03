@@ -118,7 +118,7 @@ function sexualRatio(selected){
 		.data(female_population)
 		.enter();
 	bar.append("rect")
-		.attr("fill", "blue")
+		.attr("fill", "#384cff")
 		.attr("height", y.bandwidth())
 		.attr("x", d => x(0))
 		.attr("y", d => y(d.country))
@@ -136,7 +136,7 @@ function sexualRatio(selected){
 		.data(female_population)
 		.enter();*/
 	bar.append("rect")
-		.attr("fill", "red")
+		.attr("fill", "#ff2c29")
 		.attr("height", y.bandwidth())
 		.attr("x", x(0))
 		.attr("y", d => y(d.country))
@@ -460,7 +460,7 @@ function svgClockChart(selected,timezones){
 	var field = svgClock.selectAll("g")
 	.data(fields(timezones,timezones.length,selected))
 	.enter().append("g")
-	.attr("transform", "translate(" + width_clock/2.2 + "," + height_clock/2+ ") scale(0.9)")
+	.attr("transform", "translate(" + width_clock/1.8 + "," + height_clock/1.8+ ") scale(0.7)")
 	.attr("id","field");
 	//console.log(fields(timezones,timezones.length));
 
