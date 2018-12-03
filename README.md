@@ -7,9 +7,3 @@ This is Worldwide Comparation Map which can show the difference between some cou
 * YvYh
 * Blipe
 
-
-# NOTICE FOR WHO IS CURRENT USING THE BRANCH YANSERA-MAP
-
-
-The index page is the fill which called Test_World_Map.html
-
