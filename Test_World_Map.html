@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style type="text/css">
+        body {
+            display: block;
+            margin: 0px;
+            overflow: hidden;
+            padding: 0px;
+        }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
+    <link href="css/Information_Window.css" rel="stylesheet" type="text/css"/>
+
+</head>
+
+<body>
+
+
+    <div id="container"></div>
+	<div id="ratio"></div>
+
+
+    <div class="chartTooltip hidden" data-html="true">
+        <p>
+            <strong class="name" data-html="true"></strong>
+        </p>
+    </div>
+
+    <svg>
+        <radialGradient id="tip">
+            <stop offset="0" stop-color="white" />
+            <stop offset="0.2" stop-color="pink" />
+            <stop offset="1" stop-color="white" />
+        </radialGradient>
+    </svg>
+    <script type="text/javascript" src="script/Action_Map.js"></script>
+	
+	
+</body>
+
+</html>
